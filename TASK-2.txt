@@ -1,0 +1,542 @@
+TASK-2
+1.Online Payment System
+his program checks if a card number has 16 digits.
+If not, it throws a custom InvalidCardException and displays an error message.
+ Public class InvalidCardException extends Exception {
+    public InvalidCardException(String message) {
+        super(message);
+    }
+}
+
+public class OnlinePaymentSystem {
+
+    public static void processPayment(String cardNumber) {
+        try {
+            if (cardNumber.length() < 16) {
+                throw new InvalidCardException("Invalid Card Number! It must contain 16 digits.");
+            }
+            System.out.println("Payment processed successfully for card: " + cardNumber);
+        } catch (InvalidCardException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println("---- Online Payment System ----");
+        processPayment("123456789012");      // Invalid
+        processPayment("1234567890123456");  // Valid
+    }
+}
+2. ATM Withdrawal System
+This program checks if the withdrawal amount is greater than the account balance.
+If it is, it throws a custom InsufficientFundsException and shows an alert.
+// Custom Exception Class
+class InsufficientFundsException extends Exception {
+    public InsufficientFundsException(String message) {
+        super(message);
+    }
+}
+
+public class ATMWithdrawal {
+
+    public static void withdraw(double balance, double amount) {
+        try {
+            if (amount > balance) {
+                throw new InsufficientFundsException("Insufficient Funds! Cannot withdraw $" + amount);
+            }
+            balance -= amount;
+            System.out.println("Withdrawal successful! Remaining Balance: $" + balance);
+        } catch (InsufficientFundsException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println("---- ATM Withdrawal System ----");
+        withdraw(5000, 6000); // Invalid - exceeds balance
+        withdraw(5000, 2000); // Valid - within balance
+    }
+}
+3. File Upload System
+This program reads a file and handles exceptions like FileNotFoundException, IOException, and SecurityException. A finally block ensures the file is closed safely.
+
+import java.io.*;
+public class FileUploadSystem {
+    public static void uploadFile(String filePath) {
+        FileReader reader = null;
+        try {
+            reader = new FileReader(filePath);
+            BufferedReader br = new BufferedReader(reader);
+            String line;
+            System.out.println(“File Contents:");
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Error: File not found!");
+        } catch (SecurityException e) {
+            System.out.println("Error: Security restriction while accessing the file!");
+        } catch (IOException e) {
+            System.out.println("Error: An I/O error occurred!");
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                    System.out.println("File closed successfully.");
+                }
+            } catch (IOException e) {
+                System.out.println("Error while closing file!");
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println("---- File Upload System ----");
+        uploadFile("example.txt"); // Try with an existing or non-existing file
+    }
+}
+
+4. Food Delivery App (Threads)
+This program simulates a food delivery app using two threads —
+one updates the delivery status every 5 seconds, and the other prints the estimated delivery time.
+class StatusUpdater extends Thread {
+    public void run() {
+        String[] status = {"Order Received", "Preparing Food", "Out for Delivery", "Delivered"};
+        for (String s : status) {
+            System.out.println("📦 Status: " + s);
+            try {
+                Thread.sleep(5000); // 5 seconds delay
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
+        }
+    }
+}
+
+class TimeEstimator extends Thread {
+    public void run() {
+        int time = 20;
+        while (time > 0) {
+            System.out.println("⏱ Estimated Delivery Time: " + time + " mins");
+            try {
+                Thread.sleep(5000);
+                time -= 5;
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
+        }
+    }
+}
+
+public class FoodDeliveryApp {
+    public static void main(String[] args) {
+        System.out.println("---- Food Delivery App ----");
+        new StatusUpdater().start();
+        new TimeEstimator().start();
+    }
+}
+5.Stock Market Simulation
+Each thread represents a stock that updates its price every few seconds.
+The main thread continuously displays the current stock prices.
+import java.util.Random;
+
+class Stock extends Thread {
+    String name;
+    double price;
+
+    Stock(String name, double price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public void run() {
+        Random r = new Random();
+        while (true) {
+            price += (r.nextDouble() - 0.5) * 10; // Random change
+            System.out.println(name + " Stock Price: $" + String.format("%.2f", price));
+            try {
+                Thread.sleep(3000); // 3 seconds delay
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
+        }
+    }
+}
+
+public class StockMarketSimulation {
+    public static void main(String[] args) {
+        System.out.println("---- Stock Market Simulation ----");
+        new Stock("AAPL", 150).start();
+        new Stock("GOOG", 2800).start();
+        new Stock("TSLA", 700).start();
+    }
+}
+6. Downloader (File Download Simulation)
+Each thread simulates downloading a different file chunk.
+The main thread prints “Download complete” when all threads finish.
+class FileChunkDownloader extends Thread {
+    private int chunkNumber;
+
+    FileChunkDownloader(int chunkNumber) {
+        this.chunkNumber = chunkNumber;
+    }
+
+    public void run() {
+        System.out.println("Downloading chunk " + chunkNumber + "...");
+        try {
+            Thread.sleep(2000 + (chunkNumber * 500)); // Simulate time
+        } catch (InterruptedException e) {
+            System.out.println(e);
+        }
+        System.out.println("Chunk " + chunkNumber + " downloaded.");
+    }
+}
+
+public class Downloader {
+    public static void main(String[] args) {
+        System.out.println("---- File Downloader ----");
+        FileChunkDownloader c1 = new FileChunkDownloader(1);
+        FileChunkDownloader c2 = new FileChunkDownloader(2);
+        FileChunkDownloader c3 = new FileChunkDownloader(3);
+        c1.start();
+        c2.start();
+        c3.start();
+        try {
+            c1.join();
+            c2.join();
+            c3.join();
+        } catch (InterruptedException e) {
+            System.out.println(e);
+        }
+        System.out.println("Download complete!");
+    }
+}
+7. Serialize Patient Records (Method-Level Synchronization)
+This program uses multiple threads to save patient details into the same file.
+The savePatient() method is synchronized to ensure only one thread writes at a time.
+import java.io.*;
+
+// Patient class (Serializable)
+class Patient implements Serializable {
+    String name;
+    int age;
+    public Patient(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+
+// Serializer class with synchronized method
+class PatientSerializer {
+    synchronized void savePatient(Patient p) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(
+                new FileOutputStream("patients.ser", true))) {
+            oos.writeObject(p);
+            System.out.println("✅ Saved Patient: " + p.name);
+        } catch (IOException e) {
+            System.out.println("Error: " + e);
+        }
+    }
+}
+
+// Thread class
+class PatientThread extends Thread {
+    PatientSerializer ps;
+    Patient patient;
+    public PatientThread(PatientSerializer ps, Patient patient) {
+        this.ps = ps;
+        this.patient = patient;
+    }
+    public void run() {
+        ps.savePatient(patient);
+    }
+}
+// Main class
+public class PatientSerialization {
+    public static void main(String[] args) {
+        PatientSerializer ps = new PatientSerializer();
+        Thread t1 = new PatientThread(ps, new Patient("John", 30));
+        Thread t2 = new PatientThread(ps, new Patient("Alice", 25));
+
+        t1.start();
+        t2.start();
+    }
+}
+8. Serialize Bank Account Transactions (Method-Level Synchronization)
+This program simulates saving account transactions into one file.
+The synchronized saveTransaction() method ensures only one thread writes at a time.
+import java.io.*;
+
+// Account class (Serializable)
+class Account implements Serializable {
+    int accNo;
+    double balance;
+    public Account(int accNo, double balance) {
+        this.accNo = accNo;
+        this.balance = balance;
+    }
+}
+
+// Serializer class
+class TransactionSerializer {
+    synchronized void saveTransaction(Account a) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(
+                new FileOutputStream("transactions.ser", true))) {
+            oos.writeObject(a);
+            System.out.println("Transaction Saved for Account: " + a.accNo);
+        } catch (IOException e) {
+            System.out.println("Error: " + e);
+        }
+    }
+}
+
+// Thread class
+class TransactionThread extends Thread {
+    TransactionSerializer ts;
+    Account acc;
+    public TransactionThread(TransactionSerializer ts, Account acc) {
+        this.ts = ts;
+        this.acc = acc;
+    }
+    public void run() {
+        ts.saveTransaction(acc);
+    }
+}
+
+// Main class
+public class BankTransactionSerialization {
+    public static void main(String[] args) {
+        TransactionSerializer ts = new TransactionSerializer();
+        Thread t1 = new TransactionThread(ts, new Account(101, 5000));
+        Thread t2 = new TransactionThread(ts, new Account(102, 8000));
+
+        t1.start();
+        t2.start();
+    }
+}
+9.  Serialize Doctor Appointment Details (Method-Level Synchronization)
+This program saves appointment details to a file using threads.
+The synchronized saveAppointment() method prevents data corruption during concurrent writes.
+import java.io.*;
+
+// Appointment class (Serializable)
+class Appointment implements Serializable {
+    String doctorName;
+    String patientName;
+    String date;
+    public Appointment(String doctorName, String patientName, String date) {
+        this.doctorName = doctorName;
+        this.patientName = patientName;
+        this.date = date;
+    }
+}
+
+// Serializer class
+class AppointmentSerializer {
+    synchronized void saveAppointment(Appointment a) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(
+                new FileOutputStream("appointments.ser", true))) {
+            oos.writeObject(a);
+            System.out.println("🩺 Appointment Saved: " + a.patientName + " with Dr. " + a.doctorName);
+        } catch (IOException e) {
+            System.out.println("Error: " + e);
+        }
+    }
+}
+// Thread class
+class AppointmentThread extends Thread {
+    AppointmentSerializer as;
+    Appointment app;
+    public AppointmentThread(AppointmentSerializer as, Appointment app) {
+        this.as = as;
+        this.app = app;
+    }
+    public void run() {
+        as.saveAppointment(app);
+    }
+}
+// Main class
+public class DoctorAppointmentSerialization {
+    public static void main(String[] args) {
+        AppointmentSerializer as = new AppointmentSerializer();
+        Thread t1 = new AppointmentThread(as, new Appointment("Smith", "John", "2025-11-15"));
+        Thread t2 = new AppointmentThread(as, new Appointment("Brown", "Alice", "2025-11-16"));
+        t1.start();
+        t2.start();
+    }
+}
+10. Serialize Global Configuration (Static Method)
+Write a class ClinicConfig with static variables like hospitalName, location.
+Implement a static synchronized method saveConfig() to serialize the configuration to a file.
+import java.io.*;
+
+class ClinicConfig implements Serializable {
+    static String hospitalName = "CityCare Hospital";
+    static String location = "Downtown";
+
+    static synchronized void saveConfig() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("ClinicConfig.ser"))) {
+            oos.writeObject(new String[]{hospitalName, location});
+            System.out.println(Thread.currentThread().getName() + " saved config.");
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+}
+11. Serialize System Log:
+LogWriter uses a static synchronized method to ensure that only one thread at a time can write log messages to the file, providing thread-safe serialization of logs. All threads, even from different instances, share the same class-level lock.
+class AppendableObjectOutputStream extends ObjectOutputStream {
+    AppendableObjectOutputStream(OutputStream out) throws IOException {
+        super(out);
+    }
+   @Override
+    protected void writeStreamHeader() throws IOException {
+        reset(); // prevents writing a new header
+    }
+}
+static synchronized void writeLog(String msg) {
+    try (FileOutputStream fos = new FileOutputStream("log.txt", true);
+         ObjectOutputStream oos = new FileOutputStream("log.txt").getChannel().size() == 0 ?
+                 new ObjectOutputStream(fos) : new AppendableObjectOutputStream(fos)) {
+
+        oos.writeObject(msg);
+        System.out.println(Thread.currentThread().getName() + " wrote log: " + msg);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+
+
+
+12.  Serialize Global Statistics (Static Data)
+The program demonstrates class-level synchronization on a static method to safely serialize a shared global configuration when accessed by multiple threads.
+import java.io.*;
+class HospitalStats implements Serializable {
+    static int patientCount = 0;  // static data shared across threads
+
+    // Static synchronized method to serialize stats
+    static synchronized void saveStats() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("HospitalStats.ser"))) {
+            oos.writeObject(patientCount);
+            System.out.println(Thread.currentThread().getName() + " saved stats: " + patientCount);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Increment patient count safely
+    static synchronized void incrementPatient() {
+        patientCount++;
+        System.out.println(Thread.currentThread().getName() + " incremented count to " + patientCount);
+    }
+}
+public class TestHospitalStats {
+    public static void main(String[] args) {
+        Runnable task = () -> {
+            for (int i = 0; i < 3; i++) { // each thread increments 3 times
+                HospitalStats.incrementPatient();
+                HospitalStats.saveStats();
+                try { Thread.sleep(500); } catch (InterruptedException e) {}
+            }
+        };
+
+        Thread t1 = new Thread(task, "Thread-1");
+        Thread t2 = new Thread(task, "Thread-2");
+        Thread t3 = new Thread(task, "Thread-3");
+
+        t1.start();
+        t2.start();
+        t3.start();
+    }
+}
+14. Serialize Multiple Doctor Objects (Independent Locks)
+Each Doctor object has its own lock (this) when using a synchronized instance method.
+Different Doctor objects can serialize at the same time.
+import java.io.*;
+
+class Doctor implements Serializable {
+    String name;
+
+    Doctor(String name) { this.name = name; }
+
+    // Synchronized on this object (instance-level)
+    public synchronized void serializeDoctor() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(
+                new FileOutputStream(name + ".ser"))) {
+            oos.writeObject(this);
+            System.out.println(Thread.currentThread().getName() + " serialized " + name);
+            Thread.sleep(1000); // simulate delay
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+}
+
+public class TestDoctor {
+    public static void main(String[] args) {
+        Doctor d1 = new Doctor("DrA");
+        Doctor d2 = new Doctor("DrB");
+
+        new Thread(() -> d1.serializeDoctor(), "T1").start();
+        new Thread(() -> d2.serializeDoctor(), "T2").start();
+    }
+}
+15. Serialize Using Custom Lock Object
+Multiple threads can write to different files concurrently, but writing to the same file is synchronized using a custom lock object.
+import java.io.*;
+
+class FileExporter {
+    private final Object lock = new Object(); // custom lock
+
+    public void exportFile(String fileName, Serializable obj) {
+        synchronized(lock) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(
+                    new FileOutputStream(fileName))) {
+                oos.writeObject(obj);
+                System.out.println(Thread.currentThread().getName() + " wrote to " + fileName);
+                Thread.sleep(1000); // simulate delay
+            } catch (Exception e) { e.printStackTrace(); }
+        }
+    }
+}
+
+public class TestFileExporter {
+    public static void main(String[] args) {
+        FileExporter exporter1 = new FileExporter();
+        FileExporter exporter2 = new FileExporter();
+
+        new Thread(() -> exporter1.exportFile("file1.ser", "Data1"), "T1").start();
+        new Thread(() -> exporter2.exportFile("file2.ser", "Data2"), "T2").start();
+    }
+}
+16. Serialize Patient Reports (Selective Synchronization)
+Non-synchronized method with a synchronized block on the report object.
+Threads serializing different reports run in parallel; same report waits.
+import java.io.*;
+
+class PatientReport implements Serializable {
+    String patientName;
+    PatientReport(String name) { this.patientName = name; }
+}
+
+class ReportExporter {
+    public void exportReport(PatientReport report) {
+        synchronized(report) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(
+                    new FileOutputStream(report.patientName + ".ser"))) {
+                oos.writeObject(report);
+                System.out.println(Thread.currentThread().getName() + " exported " + report.patientName);
+                Thread.sleep(1000); // simulate delay
+            } catch (Exception e) { e.printStackTrace(); }
+        }
+    }
+}
+
+public class TestReportExporter {
+    public static void main(String[] args) {
+        ReportExporter exporter = new ReportExporter();
+        PatientReport r1 = new PatientReport("Alice");
+        PatientReport r2 = new PatientReport("Bob");
+
+        new Thread(() -> exporter.exportReport(r1), "T1").start();
+        new Thread(() -> exporter.exportReport(r2), "T2").start();
+        new Thread(() -> exporter.exportReport(r1), "T3").start(); // same as r1
+    }
+}
+
